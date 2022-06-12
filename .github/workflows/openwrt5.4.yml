@@ -16,8 +16,7 @@ on:
         description: 'SSH connection to Actions'
         required: false
         default: 'false'
-  schedule:
-    - cron: 0 21 */5 * * 
+  
 
 env:
   REPO_URL: https://github.com/coolsnowwolf/lede
@@ -30,8 +29,8 @@ env:
   UPLOAD_BIN_DIR: false
   UPLOAD_FIRMWARE: true
   UPLOAD_COWTRANSFER: false
-  UPLOAD_WETRANSFER: true
-  UPLOAD_RELEASE: true
+  UPLOAD_WETRANSFER: false
+  UPLOAD_RELEASE: false
   TZ: Asia/Shanghai
 
 jobs:
@@ -155,19 +154,19 @@ jobs:
         echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
         echo "::set-output name=url::$(cat wetransfer.log | grep https | cut -f3 -d" ")"
         
-    - name: 创建release标签
-      id: tag
-      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
-      run: |
-        echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
-        touch release.txt
-        echo "功能介绍：含Mosdns、Dockerman、阿里云盘、定时重拨、openclash、passwall2、全能推送、Rclone、cifsd共享、nfs共享、nps穿透、回家、UU加速等插件。" >> release.txt
-        echo "[固件源码](https://github.com/coolsnowwolf/lede)" >> release.txt
-        echo "由衷感谢所有为openwrt无私奉献的大佬们" >> release.txt
-        echo "📥 固件下载" >> release.txt
-        [ $UPLOAD_COWTRANSFER = true ] && echo "🔗 [国内NN网盘](${{ steps.cowtransfer.outputs.url }})" >> release.txt
-        [ $UPLOAD_WETRANSFER = true ] && echo "🔗 [国外WT网盘](${{ steps.wetransfer.outputs.url }})" >> release.txt
-        echo "::set-output name=status::success"
+#     - name: 创建release标签
+#       id: tag
+#       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+#       run: |
+#         echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
+#         touch release.txt
+#         echo "功能介绍：含Mosdns、Dockerman、阿里云盘、定时重拨、openclash、passwall2、全能推送、Rclone、cifsd共享、nfs共享、nps穿透、回家、UU加速等插件。" >> release.txt
+#         echo "[固件源码](https://github.com/coolsnowwolf/lede)" >> release.txt
+#         echo "由衷感谢所有为openwrt无私奉献的大佬们" >> release.txt
+#         echo "📥 固件下载" >> release.txt
+#         [ $UPLOAD_COWTRANSFER = true ] && echo "🔗 [国内NN网盘](${{ steps.cowtransfer.outputs.url }})" >> release.txt
+#         [ $UPLOAD_WETRANSFER = true ] && echo "🔗 [国外WT网盘](${{ steps.wetransfer.outputs.url }})" >> release.txt
+#         echo "::set-output name=status::success"
     - name: 发布至release
       uses: softprops/action-gh-release@v1
       if: steps.tag.outputs.status == 'success' && !cancelled()
@@ -179,28 +178,28 @@ jobs:
         body_path: release.txt
         files: ${{ env.FIRMWARE }}/*
 
-    - name: 删除旧的Releases
-      uses: dev-drprasad/delete-older-releases@v0.1.0
-      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
-      with:
-        keep_latest: 9
-        delete_tags: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+#     - name: 删除旧的Releases
+#       uses: dev-drprasad/delete-older-releases@v0.1.0
+#       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+#       with:
+#         keep_latest: 9
+#         delete_tags: true
+#       env:
+#         GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 
-    - name: 微信报告
-      uses: emon100/Action-Serverchan@master
-      if: steps.organize.outputs.status == 'success' && !cancelled()
-      with:
-        SCKEY: ${{ secrets.SERVERCHAN }}
-        text: 恭喜主人openwrt5.4固件编译成功！
-        desp: 我亲爱的主人您要编译的固件成功完成了！
+#     - name: 微信报告
+#       uses: emon100/Action-Serverchan@master
+#       if: steps.organize.outputs.status == 'success' && !cancelled()
+#       with:
+#         SCKEY: ${{ secrets.SERVERCHAN }}
+#         text: 恭喜主人openwrt5.4固件编译成功！
+#         desp: 我亲爱的主人您要编译的固件成功完成了！
               
               
-              奶牛快传：${{ steps.cowtransfer.outputs.url }}
+#               奶牛快传：${{ steps.cowtransfer.outputs.url }}
               
               
-              WeTransfer：${{ steps.wetransfer.outputs.url }}
+#               WeTransfer：${{ steps.wetransfer.outputs.url }}
               
               
-              Have a nice day.
+#               Have a nice day.
